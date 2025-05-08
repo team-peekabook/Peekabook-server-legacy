@@ -130,7 +130,6 @@ const searchUser = async (nickname: string, auth: number) => {
     where: {
       nickname: {
         equals: nickname,
-        mode: "insensitive",
       },
     },
   });

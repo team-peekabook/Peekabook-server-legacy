@@ -50,7 +50,6 @@ const postDuplicateNickname = async (userId: number, nickname: string) => {
     where: {
       nickname: {
         equals: lowercaseNickname,
-        mode: "insensitive",
       },
     },
     select: {
