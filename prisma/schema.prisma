@@ -3,135 +3,159 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "mysql"
+  url       = env("DATABASE_URL")
 }
 
 model User {
-  id                             Int         @id @unique @default(autoincrement())
-  nickname                       String?     @db.VarChar(50)
-  profileImage                   String?     @db.VarChar(500)
-  intro                          String?     @db.VarChar(100)
-  createdAt                      DateTime    @default(now())
-  updatedAt                      DateTime?   @updatedAt @db.Timestamp(6)
-  social_platform                String?     @db.VarChar(10)
-  social_id                      String?     @db.VarChar(50)
-  refresh_token                  String?     @db.VarChar(500)
-  email                          String?     @db.VarChar(100)
-  fcm_token                      String?     @db.VarChar(500)
-  Alarm_Alarm_receiverIdToUser   Alarm[]     @relation("Alarm_receiverIdToUser")
-  Alarm_Alarm_senderIdToUser     Alarm[]     @relation("Alarm_senderIdToUser")
-  Block_Block_userIdToUser       Block[]     @relation("Block_userIdToUser")
-  Block_Block_friendIdToUser     Block[]     @relation("Block_friendIdToUser")
-  Bookshelf                      Bookshelf[]
-  Friend_Friend_senderIdToUser   Friend[]    @relation("Friend_senderIdToUser")
-  Friend_Friend_receiverIdToUser Friend[]    @relation("Friend_receiverIdToUser")
-  recommendToToUser              Recommend[] @relation("Recommend_recommendToToUser")
-  recommendedByToUser            Recommend[] @relation("Recommend_recommendedByToUser")
-  Report_Report_userIdToUser     Report[]    @relation("Report_userIdToUser")
-  Report_Report_friendIdToUser   Report[]    @relation("Report_friendIdToUser")
+  id                           Int          @id @unique @default(autoincrement())
+  nickname                     String?      @db.VarChar(50)
+  profileImage                 String?      @db.VarChar(500) @map("profile_image")
+  intro                        String?      @db.VarChar(100)
+  createdAt                    DateTime     @default(now()) @map("created_at")
+  updatedAt                    DateTime?    @updatedAt @db.Timestamp(6) @map("updated_at")
+  social_platform              String?      @db.VarChar(10)
+  social_id                    String?      @db.VarChar(50)
+  refresh_token                String?      @db.VarChar(500)
+  email                        String?      @db.VarChar(100)
+  fcm_token                    String?      @db.VarChar(500)
+  Alarm_Alarm_receiverIdToUser Alarm[]      @relation("Alarm_receiverIdToUser")
+  Alarm_Alarm_senderIdToUser   Alarm[]      @relation("Alarm_senderIdToUser")
+  Block_Block_userIdToUser     Block[]      @relation("Block_userIdToUser")
+  Block_Block_friendIdToUser   Block[]      @relation("Block_friendIdToUser")
+  Bookshelf                    Bookshelf[]
+  Friend_Friend_senderIdToUser Friend[]     @relation("Friend_senderIdToUser")
+  Friend_Friend_receiverIdToUser Friend[]   @relation("Friend_receiverIdToUser")
+  recommendToToUser            Recommend[]  @relation("Recommend_recommendToToUser")
+  recommendedByToUser          Recommend[]  @relation("Recommend_recommendedByToUser")
+  Report_Report_userIdToUser   Report[]     @relation("Report_userIdToUser")
+  Report_Report_friendIdToUser Report[]     @relation("Report_friendIdToUser")
+
+  @@map("user")
 }
 
 model Book {
   id        Int         @id @unique @default(autoincrement())
-  bookTitle String      @db.VarChar(500)
+  bookTitle String      @db.VarChar(500) @map("book_title")
   author    String      @db.VarChar(100)
-  bookImage String?     @db.VarChar(500)
+  bookImage String?     @db.VarChar(500) @map("book_image")
   publisher String      @db.VarChar(50)
   Bookshelf Bookshelf[]
   Recommend Recommend[]
+
+  @@map("book")
 }
 
 model Bookshelf {
-  id           Int            @id @unique @default(autoincrement())
-  pickIndex    Int            @default(0)
-  description  String?        @db.VarChar(200)
-  memo         String?        @db.VarChar(50)
-  userId       Int
-  bookId       Int
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime?      @updatedAt @db.Timestamp(6)
-  Book         Book           @relation(fields: [bookId], references: [id], onDelete: NoAction, map: "bookshelf_book_id_fk")
-  User         User           @relation(fields: [userId], references: [id], onDelete: Cascade, map: "bookshelf_user_id_fk")
+  id           Int           @id @unique @default(autoincrement())
+  pickIndex    Int           @default(0) @map("pick_index")
+  description  String?       @db.VarChar(200)
+  memo         String?       @db.VarChar(50)
+  userId       Int           @map("user_id")
+  bookId       Int           @map("book_id")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime?     @updatedAt @db.Timestamp(6) @map("updated_at")
+  Book         Book          @relation(fields: [bookId], references: [id], onDelete: NoAction, map: "bookshelf_book_id_fk")
+  User         User          @relation(fields: [userId], references: [id], onDelete: Cascade, map: "bookshelf_user_id_fk")
   NewBookAlarm NewBookAlarm[]
+
+  @@map("bookshelf")
 }
 
 model Friend {
-  followId         Int  @id @unique @default(autoincrement())
-  receiverId       Int
-  senderId         Int
-  senderIdToUser   User @relation("Friend_senderIdToUser", fields: [senderId], references: [id], onDelete: Cascade, map: "friend_user_id_fk_2")
+  followId         Int  @id @unique @default(autoincrement()) @map("follow_id")
+  receiverId       Int  @map("receiver_id")
+  senderId         Int  @map("sender_id")
+  senderIdToUser  User @relation("Friend_senderIdToUser", fields: [senderId], references: [id], onDelete: Cascade, map: "friend_user_id_fk_2")
   receiverIdToUser User @relation("Friend_receiverIdToUser", fields: [receiverId], references: [id], onDelete: Cascade, map: "friend_user_id_fk")
+
+  @@map("friend")
 }
 
 model Alarm {
-  id               Int              @id @unique @default(autoincrement())
-  createdAt        DateTime         @default(now())
-  receiverId       Int
-  senderId         Int
-  typeId           Int
-  receiverIdToUser User             @relation("Alarm_receiverIdToUser", fields: [receiverId], references: [id], onDelete: Cascade, map: "alarm_user_id_fk")
-  senderIdToUser   User             @relation("Alarm_senderIdToUser", fields: [senderId], references: [id], onDelete: Cascade, map: "alarm_user_id_fk_2")
-  NewBookAlarm     NewBookAlarm[]
-  RecommendAlarm   RecommendAlarm[]
+  id                         Int            @id @unique @default(autoincrement())
+  createdAt                  DateTime       @default(now()) @map("created_at")
+  receiverId                 Int            @map("receiver_id")
+  senderId                   Int            @map("sender_id")
+  typeId                     Int            @map("type_id")
+  receiverIdToUser           User           @relation("Alarm_receiverIdToUser", fields: [receiverId], references: [id], onDelete: Cascade, map: "alarm_user_id_fk")
+  senderIdToUser             User           @relation("Alarm_senderIdToUser", fields: [senderId], references: [id], onDelete: Cascade, map: "alarm_user_id_fk_2")
+  NewBookAlarm               NewBookAlarm[]
+  RecommendAlarm             RecommendAlarm[]
+
+  @@map("alarm")
 }
 
 model Recommend {
   id                  Int              @id @unique @default(autoincrement())
-  recommendDesc       String?          @db.VarChar(200)
-  recommendedBy       Int
-  recommendTo         Int
-  bookId              Int
-  createdAt           DateTime         @default(now())
+  recommendDesc       String?          @db.VarChar(200) @map("recommend_desc")
+  recommendedBy       Int              @map("recommended_by")
+  recommendTo         Int              @map("recommend_to")
+  bookId              Int              @map("book_id")
+  createdAt           DateTime         @default(now()) @map("created_at")
   Book                Book             @relation(fields: [bookId], references: [id], onDelete: Cascade, map: "recommend_book_id_fk")
   recommendToToUser   User             @relation("Recommend_recommendToToUser", fields: [recommendTo], references: [id], onDelete: Cascade, map: "recommend_user_id_fk_2")
   recommendedByToUser User             @relation("Recommend_recommendedByToUser", fields: [recommendedBy], references: [id], onDelete: Cascade, map: "recommend_user_id_fk")
   RecommendAlarm      RecommendAlarm[]
+
+  @@map("recommend")
 }
 
 model RecommendAlarm {
   id          Int       @id @unique @default(autoincrement())
-  alarmId     Int
-  recommendId Int
+  alarmId     Int       @map("alarm_id")
+  recommendId Int       @map("recommend_id")
   Alarm       Alarm     @relation(fields: [alarmId], references: [id], onDelete: Cascade, map: "alarm_id_fk")
   Recommend   Recommend @relation(fields: [recommendId], references: [id], onDelete: Cascade, map: "recommend_id_fk")
+
+  @@map("recommend_alarm")
 }
 
 model NewBookAlarm {
   id          Int       @id @unique @default(autoincrement())
-  alarmId     Int
-  bookshelfId Int
-  Alarm       Alarm     @relation(fields: [alarmId], references: [id], onDelete: Cascade, map: "alarm_id_fk")
+  alarmId     Int       @map("alarm_id")
+  bookshelfId Int       @map("bookshelf_id")
+  Alarm       Alarm     @relation(fields: [alarmId], references: [id], onDelete: Cascade, map: "new_book_alarm_alarm_id_fk")
   Bookshelf   Bookshelf @relation(fields: [bookshelfId], references: [id], onDelete: Cascade, map: "bookshelf_id_fk")
+
+  @@map("new_book_alarm")
 }
 
 model AlarmType {
   id       Int     @id @default(autoincrement())
-  typeName String? @db.VarChar(50)
+  typeName String? @db.VarChar(50) @map("type_name")
+
+  @@map("alarm_type")
 }
 
 model Block {
   id                        Int  @id @unique @default(autoincrement())
-  userId                    Int
-  friendId                  Int
+  userId                    Int  @map("user_id")
+  friendId                  Int  @map("friend_id")
   User_Block_userIdToUser   User @relation("Block_userIdToUser", fields: [userId], references: [id], onDelete: Cascade, map: "block_user_id_fk")
   User_Block_friendIdToUser User @relation("Block_friendIdToUser", fields: [friendId], references: [id], onDelete: Cascade, map: "block_user_id_fk_2")
+
+  @@map("block")
 }
 
 model Report {
   id                         Int     @id @unique @default(autoincrement())
-  userId                     Int
-  friendId                   Int
-  reasonIndex                Int?
+  userId                     Int     @map("user_id")
+  friendId                   Int     @map("friend_id")
+  reasonIndex                Int?    @map("reason_index")
   etc                        String? @db.VarChar(300)
   User_Report_userIdToUser   User    @relation("Report_userIdToUser", fields: [userId], references: [id], onDelete: Cascade, map: "report_user_id_fk")
   User_Report_friendIdToUser User    @relation("Report_friendIdToUser", fields: [friendId], references: [id], onDelete: Cascade, map: "report_user_id_fk_2")
+
+  @@map("report")
 }
 
 model Version {
   id                  Int     @id @default(autoincrement())
-  androidForceVersion String? @db.VarChar(255)
-  imageUrl            String? @db.VarChar(500)
+  androidForceVersion String? @db.VarChar(255) @map("android_force_version")
+  imageUrl            String? @db.VarChar(500) @map("image_url")
   text                String? @db.VarChar(255)
-  iosForceVersion     String? @db.VarChar(255)
+  iosForceVersion     String? @db.VarChar(255) @map("ios_force_version")
+
+  @@map("version")
 }
