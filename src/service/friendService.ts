@@ -190,6 +190,7 @@ const searchUser = async (nickname: string, auth: number) => {
 
 //* [POST] 팔로우 하기
 const followFriend = async (friendId: number, auth: number) => {
+  // 내가 이전에 팔로우를 이미 했는지 확인
   const followData = await prisma.friend.findFirst({
     where: {
       receiverId: friendId,
@@ -212,14 +213,45 @@ const followFriend = async (friendId: number, auth: number) => {
     },
   });
 
-  // 알림 테이블에도 추가
-  await prisma.alarm.create({
-    data: {
-      senderId: auth,
-      receiverId: friendId,
-      typeId: 1,
+  // 상대가 나를 팔로우 하는지 확인
+  const followBackData = await prisma.friend.findFirst({
+    where: {
+      receiverId: auth,
+      senderId: friendId,
+    },
+    select: {
+      followId: true,
     },
   });
+
+  if (followBackData != null) {
+    await prisma.alarm.create({
+      data: {
+        senderId: auth,
+        receiverId: friendId,
+        typeId: 1,
+      },
+    });
+
+    // 상대 알림에서도 맞팔로 바꾸기
+    await prisma.alarm.updateMany({
+      where: {
+        senderId: friendId,
+        receiverId: auth,
+      },
+      data: {
+        typeId: 1,
+      },
+    });
+  } else {
+    await prisma.alarm.create({
+      data: {
+        senderId: auth,
+        receiverId: friendId,
+        typeId: 4,
+      },
+    });
+  }
 
   // 푸시 알림 보내기
   const receiverUser = await prisma.user.findFirst({
@@ -227,6 +259,7 @@ const followFriend = async (friendId: number, auth: number) => {
       id: friendId,
     },
   });
+
   const senderUser = await prisma.user.findFirst({
     where: {
       id: auth,
