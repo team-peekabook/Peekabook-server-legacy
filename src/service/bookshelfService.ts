@@ -126,7 +126,7 @@ const deleteMyBook = async (bookshelfId: number) => {
     });
   }
 
-  //* 책삭제 했을때 알림들 다 삭제됨
+  //* 책 삭제 했을때 알림들 다 삭제됨
   const deleteData = await prisma.newBookAlarm.findMany({
     where: {
       bookshelfId: bookshelfId,
