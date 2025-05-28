@@ -24,7 +24,7 @@ const getAlarm = async (auth: number) => {
 
   const promises = alarmData.map(async (data) => {
     //? 팔로우 한 경우
-    if (data.typeId === 1) {
+    if (data.typeId === 1 || data.typeId === 4) {
       const userData = await prisma.user.findFirst({
         where: {
           id: data.senderId,
