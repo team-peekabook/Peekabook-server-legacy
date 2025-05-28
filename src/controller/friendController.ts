@@ -233,12 +233,6 @@ const postReport = async (req: Request, res: Response) => {
         .send(fail(sc.BAD_REQUEST, rm.FAIL_REPORT_POST));
     }
 
-    if (data == sc.NOT_FOUND) {
-      return res
-        .status(sc.NOT_FOUND)
-        .send(fail(sc.NOT_FOUND, rm.REPORT_NO_USER));
-    }
-
     postMail(friendReportRequestDto, +friendId, +userId);
 
     return res.status(sc.OK).send(success(sc.OK, rm.SUCCESS_REPORT_POST));

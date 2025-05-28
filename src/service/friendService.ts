@@ -371,16 +371,6 @@ const postReport = async (
   friendId: number,
   friendReportRequestDto: FriendReportRequestDTO
 ) => {
-  const friendData = await prisma.friend.findFirst({
-    where: {
-      senderId: userId,
-      receiverId: friendId,
-    },
-  });
-
-  if (!friendData) {
-    return sc.NOT_FOUND;
-  }
   // 특정 이유 적은 경우
   if (!friendReportRequestDto.etc) {
     const reportResult = await prisma.report.create({
