@@ -1,0 +1,18 @@
+services:
+  peekabook-app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    container_name: peekabook-app-dev
+    ports:
+      - "3000:3000"
+    env_file:
+      - ../.env.dev
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ../:/usr/src/app
+      - /usr/src/app/node_modules
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+    restart: unless-stopped

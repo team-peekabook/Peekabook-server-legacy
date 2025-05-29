@@ -1,12 +1,19 @@
 import dotenv from "dotenv";
+import path from "path";
 
-// Set the NODE_ENV to 'development' by default
+// Set NODE_ENV to 'development' by default
 process.env.NODE_ENV = process.env.NODE_ENV || "development";
 
-const envFound = dotenv.config();
+// 동적으로 env 파일 경로 설정
+const envFilePath =
+  process.env.NODE_ENV === "production"
+    ? path.resolve(__dirname, "../../.env.prod")
+    : path.resolve(__dirname, "../../.env.dev");
+
+const envFound = dotenv.config({ path: envFilePath });
 
 if (envFound.error) {
-  throw new Error("⚠️  Couldn't find .env file  ⚠️");
+  throw new Error(`⚠️  Couldn't find ${envFilePath} file  ⚠️`);
 }
 
 export default {

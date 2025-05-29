@@ -1,0 +1,48 @@
+###################
+# BUILD STAGE
+###################
+FROM node:24-alpine AS build
+
+RUN apk add --no-cache python3 py3-pip make g++ openssl openssl-dev
+
+WORKDIR /usr/src/app
+
+COPY --chown=node:node package*.json ./
+RUN npm ci
+
+COPY --chown=node:node service-account-file.json ./
+COPY --chown=node:node . .
+
+RUN npx prisma generate
+
+RUN NODE_OPTIONS=--max-old-space-size=2048 npm run build
+
+RUN rm -rf node_modules && npm ci --omit=dev --ignore-scripts && npm cache clean --force
+
+RUN npx prisma generate
+
+###################
+# PRODUCTION STAGE
+###################
+FROM node:24-alpine AS production
+
+RUN apk add --no-cache openssl
+
+WORKDIR /usr/src/app
+
+# 필요한 프로덕션 파일만 복사
+COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+COPY --chown=node:node --from=build /usr/src/app/prisma ./prisma
+COPY --chown=node:node --from=build /usr/src/app/package*.json ./
+
+
+COPY --chown=node:node --from=build /usr/src/app/*.env* ./
+
+COPY --chown=node:node --from=build /usr/src/app/service-account-file.json ./
+
+EXPOSE 3000
+
+USER node
+
+CMD ["node", "dist/index.js"]
