@@ -101,7 +101,7 @@ const getRecommend = async (auth: number) => {
     };
     recommendingList.push(result);
   });
-  await Promise.all(recommendedPromise);
+  await Promise.all(recommendingPromise);
 
   let data: { recommendedBook: object; recommendingBook: object } = {
     recommendedBook: recommendedList,
