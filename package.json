@@ -6,7 +6,8 @@
   "author": "hyeonjeong Park <py0429@ewhain.net>",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon",
+    "start": "node dist/index.js",
+    "dev": "cross-env NODE_ENV=development nodemon --exec ts-node src/index.ts",
     "build": "tsc",
     "db:pull": "npx prisma db pull",
     "postinstall": "prisma generate",
@@ -40,11 +41,12 @@
     "@types/node": "^20.8.6",
     "@types/supertest": "^2.0.12",
     "chai": "^4.3.7",
+    "cross-env": "^7.0.3",
     "husky": "^8.0.0",
     "mocha": "^10.2.0",
     "nodemon": "^3.0.1",
     "supertest": "^6.3.3",
-    "ts-node": "^10.9.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }
 }
