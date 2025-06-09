@@ -213,6 +213,14 @@ const followFriend = async (friendId: number, auth: number) => {
     },
   });
 
+  // 상대한테 이전에 보냈던 알림 삭제
+  await prisma.alarm.deleteMany({
+    where: {
+      receiverId: friendId,
+      senderId: auth,
+    },
+  });
+
   // 상대가 나를 팔로우 하는지 확인
   const followBackData = await prisma.friend.findFirst({
     where: {
