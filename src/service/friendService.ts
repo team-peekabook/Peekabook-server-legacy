@@ -304,6 +304,18 @@ const deleteFollowFriend = async (friendId: number, auth: number) => {
       senderId: auth,
     },
   });
+
+  // 알림 타입도 변경
+  await prisma.alarm.updateMany({
+    where: {
+      senderId: friendId,
+      receiverId: auth,
+    },
+    data: {
+      typeId: 4,
+    },
+  });
+
   return data;
 };
 
