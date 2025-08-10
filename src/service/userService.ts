@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { IntroDTO } from "../interfaces/user/IntroDTO";
 import { UserDTO } from "../interfaces/user/UserDTO";
 import { UserVersionDTO } from "../interfaces/user/UserVersionDTO";
+import { sc } from "../constants";
 
 const prisma = new PrismaClient();
 
@@ -35,7 +36,7 @@ const getUserIntro = async (userId: number) => {
       intro: true,
     },
   });
-  if (!userIntro) throw new Error("no userIntro!");
+  if (!userIntro) throw sc.UNAUTHORIZED;
 
   return userIntro;
 };
